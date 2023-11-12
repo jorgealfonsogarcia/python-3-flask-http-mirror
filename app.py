@@ -26,6 +26,28 @@ import tzlocal
 
 app = Flask(__name__)
 
+@app.after_request
+def set_security_headers(response):
+    """
+    Sets security headers for the HTTP response.
+
+    Args:
+        response (flask.Response): The HTTP response object.
+
+    Returns:
+        flask.Response: The HTTP response object with security headers set.
+    """
+    csp_policy = (
+        "default-src 'self'; "
+        "frame-ancestors 'none'; "
+        "form-action 'self';"
+    )
+    response.headers['Content-Security-Policy'] = csp_policy
+
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    return response
+
+
 @app.route('/mirror', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def http_mirror():
     """
@@ -61,10 +83,10 @@ def http_mirror():
         'files': dict(request.files),
         'json': request.json if request.content_type == 'application/json' else None,
         'referrer': request.referrer,
-        'remote_addr': request.remote_addr,
         'scheme': request.scheme,
         'user_agent': request.user_agent.string,
-        'environ': {k: v for k, v in request.environ.items() if isinstance(v, (str, int, float, list, dict, bool))},
+        'environ': {k: v for k, v in request.environ.items() if isinstance(v, (str, int, float, list, dict, bool)) \
+                    and k not in ["REMOTE_ADDR", "REMOTE_PORT", "SERVER_SOFTWARE"]}
     })
 
 if __name__ == '__main__':
