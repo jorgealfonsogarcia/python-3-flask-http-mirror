@@ -59,7 +59,7 @@ def http_mirror():
         'data': request.data.decode('utf-8'),
         'cookies': request.cookies,
         'files': dict(request.files),
-        'json': request.json,
+        'json': request.json if request.content_type == 'application/json' else None,
         'referrer': request.referrer,
         'remote_addr': request.remote_addr,
         'scheme': request.scheme,
