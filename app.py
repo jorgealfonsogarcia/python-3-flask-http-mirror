@@ -45,6 +45,12 @@ def set_security_headers(response):
     response.headers['Content-Security-Policy'] = csp_policy
 
     response.headers['X-Content-Type-Options'] = 'nosniff'
+
+    if "Content-Type" in response.headers and "text/html" in response.headers["Content-Type"]:
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    else:
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+
     return response
 
 
@@ -86,7 +92,7 @@ def http_mirror():
         'scheme': request.scheme,
         'user_agent': request.user_agent.string,
         'environ': {k: v for k, v in request.environ.items() if isinstance(v, (str, int, float, list, dict, bool)) \
-                    and k not in ["REMOTE_ADDR", "REMOTE_PORT", "SERVER_SOFTWARE"]}
+                    and k not in ["REMOTE_ADDR", "REMOTE_PORT", "SERVER_SOFTWARE", "HTTP_X_FORWARDED_FOR"]}
     })
 
 if __name__ == '__main__':
