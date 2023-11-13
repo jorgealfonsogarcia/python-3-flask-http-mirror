@@ -49,7 +49,7 @@ def set_security_headers(response):
     if "Content-Type" in response.headers and "text/html" in response.headers["Content-Type"]:
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     else:
-        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        response.headers["Cache-Control"] = "public, max-age=3600, immutable"
 
     return response
 
@@ -81,7 +81,7 @@ def http_mirror():
         'datetime': datetime.now(tzlocal.get_localzone()).isoformat(),
         'method': request.method,
         'url': request.url,
-        'headers': dict(request.headers),
+        'headers': {k: v for k, v in request.headers.items() if k not in ['X-Forwarded-For']},
         'args': dict(request.args),
         'form': dict(request.form),
         'data': request.data.decode('utf-8'),
@@ -92,7 +92,7 @@ def http_mirror():
         'scheme': request.scheme,
         'user_agent': request.user_agent.string,
         'environ': {k: v for k, v in request.environ.items() if isinstance(v, (str, int, float, list, dict, bool)) \
-                    and k not in ["REMOTE_ADDR", "REMOTE_PORT", "SERVER_SOFTWARE", "HTTP_X_FORWARDED_FOR"]}
+                    and k not in ['REMOTE_ADDR', 'REMOTE_PORT', 'SERVER_SOFTWARE', 'HTTP_X_FORWARDED_FOR']}
     })
 
 if __name__ == '__main__':
