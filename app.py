@@ -45,11 +45,7 @@ def set_security_headers(response):
     response.headers['Content-Security-Policy'] = csp_policy
 
     response.headers['X-Content-Type-Options'] = 'nosniff'
-
-    if "Content-Type" in response.headers and "text/html" in response.headers["Content-Type"]:
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    else:
-        response.headers["Cache-Control"] = "public, max-age=3600, immutable"
+    response.headers["Cache-Control"] = "max-age=0, must-revalidate, no-cache, no-store, private"
 
     return response
 
